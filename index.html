@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Petroleum Royalties — Iran War Sensitivity Model | FIRS 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #060e1c;
+    --bg2:      #0a1628;
+    --bg3:      #0d1f38;
+    --border:   #1e3a5f;
+    --gold:     #d4a017;
+    --gold-dim: rgba(212,160,23,0.15);
+    --green:    #22c55e;
+    --red:      #ef4444;
+    --orange:   #f97316;
+    --blue:     #3b82f6;
+    --text:     #e2e8f0;
+    --muted:    #94a3b8;
+    --dim:      #475569;
+    --faint:    #1e3a5f;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0a1628 0%, #0f2040 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 28px 32px 24px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--gold-dim);
+    border: 1px solid rgba(212,160,23,0.4);
+    color: var(--gold);
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 3px 12px;
+    border-radius: 20px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: clamp(18px, 3vw, 26px);
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .subtitle { color: var(--dim); font-size: 12px; letter-spacing: 0.4px; font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── KPI ROW ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 20px;
+  }
+  .kpi-card {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 16px 18px;
+    border: 1px solid var(--faint);
+  }
+  .kpi-card.gold  { border-color: rgba(212,160,23,0.3);  background: rgba(212,160,23,0.05); }
+  .kpi-card.green { border-color: rgba(34,197,94,0.3);   background: rgba(34,197,94,0.05); }
+  .kpi-card.red   { border-color: rgba(239,68,68,0.3);   background: rgba(239,68,68,0.05); }
+  .kpi-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 1.2px; font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
+  .kpi-val   { font-size: clamp(20px, 3vw, 28px); font-weight: 800; letter-spacing: -0.5px; }
+  .kpi-sub   { font-size: 11px; color: var(--dim); margin-top: 3px; font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── BODY ── */
+  .body { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg2);
+    border-radius: 10px;
+    padding: 4px;
+    border: 1px solid var(--faint);
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  .tab {
+    flex: 1;
+    min-width: 90px;
+    padding: 9px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+    background: transparent;
+    color: var(--dim);
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--muted); background: rgba(255,255,255,0.04); }
+  .tab.active { background: var(--faint); color: var(--gold); border-color: #334155; }
+
+  /* ── PANEL ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg3);
+    border: 1px solid var(--faint);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--faint);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ── SLIDERS ── */
+  .slider-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .slider-wrap { display: flex; flex-direction: column; }
+  .slider-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
+  .slider-val { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 5px;
+    background: var(--faint);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--bg);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(212,160,23,0.5);
+    transition: transform 0.1s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .slider-meta { display: flex; justify-content: space-between; margin-top: 6px; }
+  .slider-ref { font-size: 10px; color: var(--dim); font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── BADGE ── */
+  .tag-pos { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 11px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .tag-neg { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 11px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+  /* ── RESULT CARDS ── */
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .result-card {
+    border-radius: 10px;
+    padding: 18px 20px;
+    border: 1px solid var(--faint);
+  }
+  .result-big { font-size: clamp(28px, 4vw, 38px); font-weight: 800; letter-spacing: -1px; margin: 6px 0; }
+  .result-sub { font-size: 12px; color: var(--dim); font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── EFFECT PILLS ── */
+  .effect-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+  .effect-pill {
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid var(--faint);
+  }
+  .effect-arrow { font-size: 20px; font-weight: 800; }
+  .effect-big { font-size: 18px; font-weight: 800; margin-top: 4px; }
+  .effect-desc { font-size: 11px; color: var(--dim); margin-top: 3px; font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── SCENARIOS ── */
+  .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .scenario-card {
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid var(--faint);
+  }
+  .scenario-name { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
+  .scenario-val { font-size: 22px; font-weight: 800; }
+  .scenario-pct { font-size: 11px; margin-top: 4px; font-family: 'IBM Plex Mono', monospace; }
+  .scenario-bar { height: 4px; background: var(--faint); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .scenario-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+
+  /* ── MATRIX ── */
+  .matrix-scroll { overflow-x: auto; }
+  .matrix-table { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 11px; min-width: 700px; width: 100%; }
+  .matrix-table th {
+    padding: 8px 6px;
+    background: var(--bg2);
+    color: var(--muted);
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .matrix-table th.row-header { text-align: left; padding-left: 10px; position: sticky; left: 0; z-index: 2; }
+  .matrix-table td {
+    padding: 7px 6px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.04);
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .matrix-table td.row-header {
+    background: var(--bg2);
+    color: var(--muted);
+    text-align: left;
+    padding-left: 10px;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    font-weight: 600;
+  }
+  .matrix-table td:hover { filter: brightness(1.3); }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── FORMULA BOX ── */
+  .formula-box {
+    background: var(--bg2);
+    border: 1px solid var(--faint);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+
+  /* ── IMPACT ITEMS ── */
+  .impact-item {
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    background: var(--bg2);
+    border-radius: 8px;
+    border: 1px solid var(--faint);
+    border-left-width: 3px;
+  }
+  .impact-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .impact-title { font-size: 13px; font-weight: 700; color: #f8fafc; flex: 1; }
+  .impact-status { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 12px; white-space: nowrap; margin-left: 12px; font-family: 'IBM Plex Mono', monospace; }
+  .impact-body { font-size: 12px; color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
+  .impact-footer { font-size: 11px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── BREAK-EVEN ── */
+  .be-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .be-card { background: var(--bg2); padding: 16px; border-radius: 8px; border: 1px solid var(--faint); }
+  .be-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
+  .be-val { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .be-desc { font-size: 11px; color: var(--dim); font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── CHART CONTAINER ── */
+  .chart-wrap { position: relative; height: 240px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 32px;
+    padding: 16px 32px;
+    border-top: 1px solid var(--faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--dim);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 700px) {
+    .header { padding: 20px 16px 18px; }
+    .body { padding: 16px; }
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .slider-grid { grid-template-columns: 1fr; gap: 18px; }
+    .result-grid { grid-template-columns: 1fr; }
+    .effect-row { grid-template-columns: 1fr; }
+    .scenario-grid { grid-template-columns: 1fr 1fr; }
+    .be-grid { grid-template-columns: 1fr; }
+    .footer { flex-direction: column; }
+    .kpi-row .kpi-card:last-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 400px) {
+    .scenario-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Waterfall colours */
+  .wf-positive { background: var(--green); }
+  .wf-negative { background: var(--red); }
+  .wf-total    { background: var(--gold); }
+  .wf-current  { background: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="header">
+  <div class="badge">Non-Tax Revenue Group · FIRS · Nigeria · FY 2026</div>
+  <h1>Petroleum Royalties — Iran War Sensitivity Model</h1>
+  <p class="subtitle">Target: ₦8.47T Annual &nbsp;|&nbsp; ₦700B Monthly &nbsp;|&nbsp; Model date: 30 March 2026</p>
+
+  <div class="kpi-row">
+    <div class="kpi-card gold">
+      <div class="kpi-label">Annual Target</div>
+      <div class="kpi-val" style="color:var(--gold)">₦8.47T</div>
+      <div class="kpi-sub">2026 fiscal benchmark</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Projected (Live)</div>
+      <div class="kpi-val" id="hdr-royalties" style="color:var(--green)">—</div>
+      <div class="kpi-sub" id="hdr-royalties-pct">vs target</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Monthly Run-Rate</div>
+      <div class="kpi-val" id="hdr-monthly" style="color:var(--orange)">—</div>
+      <div class="kpi-sub">Target: ₦700B/month</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ BODY ══════════ -->
+<div class="body">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('simulator')">⚡ Simulator</button>
+    <button class="tab" onclick="switchTab('overview')">📊 Overview</button>
+    <button class="tab" onclick="switchTab('impact')">🔥 Iran War</button>
+    <button class="tab" onclick="switchTab('matrix')">🔢 Sensitivity Matrix</button>
+    <button class="tab" onclick="switchTab('breakeven')">⚖️ Break-Even</button>
+  </div>
+
+  <!-- ══ SIMULATOR ══ -->
+  <div class="panel active" id="panel-simulator">
+    <div class="card">
+      <div class="section-title">Live Simulator — Adjust All Three Drivers</div>
+      <div class="slider-grid">
+
+        <!-- Price -->
+        <div class="slider-wrap">
+          <div class="slider-label">Oil Price ($/bbl)</div>
+          <div class="slider-val" id="disp-price" style="color:var(--blue)">$115.00</div>
+          <input type="range" id="sl-price" min="40" max="150" step="0.5" value="115"
+            style="accent-color:var(--blue)" oninput="onSlide()">
+          <div class="slider-meta">
+            <span class="slider-ref">Budget: $64.85</span>
+            <span id="tag-price" class="tag-pos">+0%</span>
+          </div>
+        </div>
+
+        <!-- Production -->
+        <div class="slider-wrap">
+          <div class="slider-label">Production (M bpd)</div>
+          <div class="slider-val" id="disp-prod" style="color:var(--orange)">1.50 mbpd</div>
+          <input type="range" id="sl-prod" min="0.80" max="2.20" step="0.01" value="1.50"
+            style="accent-color:var(--orange)" oninput="onSlide()">
+          <div class="slider-meta">
+            <span class="slider-ref">Budget: 1.84 mbpd</span>
+            <span id="tag-prod" class="tag-neg">-0%</span>
+          </div>
+        </div>
+
+        <!-- FX -->
+        <div class="slider-wrap">
+          <div class="slider-label">Exchange Rate (₦/$)</div>
+          <div class="slider-val" id="disp-fx" style="color:var(--green)">₦1,380</div>
+          <input type="range" id="sl-fx" min="1000" max="1800" step="10" value="1380"
+            style="accent-color:var(--green)" oninput="onSlide()">
+          <div class="slider-meta">
+            <span class="slider-ref">Budget: ₦1,400</span>
+            <span id="tag-fx" class="tag-neg">-0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT CARDS -->
+    <div class="result-grid">
+      <div class="result-card" id="rc-annual">
+        <div class="kpi-label">Projected Annual Royalties</div>
+        <div class="result-big" id="rc-annual-val">—</div>
+        <span id="rc-annual-tag" class="tag-pos"></span>
+        <div class="result-sub" style="margin-top:8px">USD equivalent: <span id="rc-usd" style="color:var(--blue)">—</span></div>
+      </div>
+      <div class="result-card" id="rc-monthly">
+        <div class="kpi-label">Monthly Run-Rate</div>
+        <div class="result-big" id="rc-monthly-val">—</div>
+        <span id="rc-monthly-tag" class="tag-pos"></span>
+        <div class="result-sub" style="margin-top:8px">Gap vs ₦700B target: <span id="rc-gap">—</span></div>
+      </div>
+    </div>
+
+    <!-- VARIABLE EFFECTS -->
+    <div class="card">
+      <div class="section-title">Contribution of Each Variable vs Budget Baseline</div>
+      <div class="effect-row">
+        <div class="effect-pill">
+          <div class="effect-arrow" id="eff-price-arrow" style="color:var(--green)">↑</div>
+          <div class="kpi-label">Price Effect</div>
+          <div class="effect-big" id="eff-price-val">—</div>
+          <div class="effect-desc" id="eff-price-desc">$64.85 → $115</div>
+        </div>
+        <div class="effect-pill">
+          <div class="effect-arrow" id="eff-prod-arrow" style="color:var(--red)">↓</div>
+          <div class="kpi-label">Production Effect</div>
+          <div class="effect-big" id="eff-prod-val">—</div>
+          <div class="effect-desc" id="eff-prod-desc">1.84 → 1.50 mbpd</div>
+        </div>
+        <div class="effect-pill">
+          <div class="effect-arrow" id="eff-fx-arrow" style="color:var(--orange)">↓</div>
+          <div class="kpi-label">FX Rate Effect</div>
+          <div class="effect-big" id="eff-fx-val">—</div>
+          <div class="effect-desc" id="eff-fx-desc">₦1,400 → ₦1,380</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENARIOS -->
+    <div class="card">
+      <div class="section-title">Predefined Scenarios</div>
+      <div class="scenario-grid" id="scenario-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══ OVERVIEW ══ -->
+  <div class="panel" id="panel-overview">
+
+    <div class="card">
+      <div class="section-title">Budget Assumptions vs Current Reality</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div class="be-card">
+          <div class="be-label">Oil Price</div>
+          <div class="be-val" style="color:var(--gold)">$64.85</div>
+          <div class="be-desc">Budget benchmark</div>
+          <hr style="border:none;border-top:1px solid var(--faint);margin:10px 0">
+          <div class="be-val" style="color:var(--green)">$115+</div>
+          <div class="be-desc">Current (Iran war) +77.9%</div>
+        </div>
+        <div class="be-card">
+          <div class="be-label">Production</div>
+          <div class="be-val" style="color:var(--gold)">1.84 mbpd</div>
+          <div class="be-desc">Budget target</div>
+          <hr style="border:none;border-top:1px solid var(--faint);margin:10px 0">
+          <div class="be-val" style="color:var(--red)">1.48 mbpd</div>
+          <div class="be-desc">Feb 2026 actual −19.6%</div>
+        </div>
+        <div class="be-card">
+          <div class="be-label">Exchange Rate</div>
+          <div class="be-val" style="color:var(--gold)">₦1,400/$</div>
+          <div class="be-desc">Budget assumption</div>
+          <hr style="border:none;border-top:1px solid var(--faint);margin:10px 0">
+          <div class="be-val" style="color:var(--orange)">₦1,380/$</div>
+          <div class="be-desc">Current — naira strengthened</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Royalty Collection Formula</div>
+      <div class="formula-box">
+        Royalties (₦) =
+        <span style="color:var(--orange)">Production</span> (bpd) × 365 days<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;×
+        <span style="color:var(--blue)">Price</span> ($/bbl)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;×
+        <span style="color:var(--gold)">Royalty Rate</span> (13.89% implied)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;×
+        <span style="color:var(--green)">FX Rate</span> (₦/$)
+      </div>
+      <div style="padding:12px 16px;background:rgba(212,160,23,0.06);border-radius:8px;border:1px solid rgba(212,160,23,0.2);font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.8">
+        <span style="color:var(--gold);font-weight:700">Verification:</span>
+        1,840,000 × 365 × $64.85 × 13.89% × ₦1,400 = <strong style="color:var(--gold)">₦8.47T</strong> ✓
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Scenario Bar Chart</div>
+      <div class="chart-wrap"><canvas id="scChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ IRAN WAR IMPACT ══ -->
+  <div class="panel" id="panel-impact">
+
+    <div class="card">
+      <div class="section-title">Waterfall: Budget Baseline → Current Projection</div>
+      <div class="chart-wrap"><canvas id="wfChart"></canvas></div>
+      <div class="effect-row" style="margin-top:16px">
+        <div class="effect-pill" style="border-left:3px solid var(--green)">
+          <div class="effect-arrow" style="color:var(--green)">↑</div>
+          <div class="kpi-label">Price Impact (Iran War)</div>
+          <div class="effect-big" style="color:var(--green)" id="wf-price"></div>
+          <div class="effect-desc">$64.85 → $115/bbl (+77.9%)</div>
+        </div>
+        <div class="effect-pill" style="border-left:3px solid var(--red)">
+          <div class="effect-arrow" style="color:var(--red)">↓</div>
+          <div class="kpi-label">Production Shortfall</div>
+          <div class="effect-big" style="color:var(--red)" id="wf-prod"></div>
+          <div class="effect-desc">1.84 → 1.50 mbpd (−18.5%)</div>
+        </div>
+        <div class="effect-pill" style="border-left:3px solid var(--orange)">
+          <div class="effect-arrow" style="color:var(--orange)">↓</div>
+          <div class="kpi-label">FX Rate (Naira Strength)</div>
+          <div class="effect-big" style="color:var(--orange)" id="wf-fx"></div>
+          <div class="effect-desc">₦1,400 → ₦1,380 (−1.4%)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Four Transmission Channels from the Iran War</div>
+
+      <div class="impact-item" style="border-left-color:var(--green)">
+        <div class="impact-header">
+          <div class="impact-title">1. Strait of Hormuz Closure → Oil Price Surge</div>
+          <span class="impact-status" style="background:rgba(34,197,94,0.15);color:var(--green)">POSITIVE</span>
+        </div>
+        <div class="impact-body">The Strait carries ~20% of global oil supply. Its near-complete closure has pushed Brent from $64.85 (budget) to $115+ today — a 77.9% premium over your benchmark. This is the single dominant positive variable for your group, overwhelming both the production shortfall and FX drag.</div>
+        <div class="impact-footer" style="color:var(--green)">Impact: +₦<span id="ch1-val"></span>T in annual royalties (price only, at budget volumes)</div>
+      </div>
+
+      <div class="impact-item" style="border-left-color:var(--red)">
+        <div class="impact-header">
+          <div class="impact-title">2. Nigeria Cannot Ramp Production → Missed Upside</div>
+          <span class="impact-status" style="background:rgba(239,68,68,0.15);color:var(--red)">NEGATIVE (STRUCTURAL)</span>
+        </div>
+        <div class="impact-body">Nigeria's production fell from 1.63 mbpd (January) to 1.48 mbpd (February) — well below the 1.84 mbpd budget target. Pipeline vandalism, crude theft, and operational inefficiencies mean Nigeria cannot capitalise on the high-price environment. Every 100,000 bpd shortfall at $115 costs approximately ₦595B/year in unrealised royalties.</div>
+        <div class="impact-footer" style="color:var(--red)">Impact: −₦<span id="ch2-val"></span>T vs what 1.84 mbpd at $115 would yield</div>
+      </div>
+
+      <div class="impact-item" style="border-left-color:var(--orange)">
+        <div class="impact-header">
+          <div class="impact-title">3. Naira Strengthening → Conversion Loss on USD Collection</div>
+          <span class="impact-status" style="background:rgba(249,115,22,0.15);color:var(--orange)">NEGATIVE</span>
+        </div>
+        <div class="impact-body">As Nigeria earns more USD from high oil prices, CBN foreign reserves have reached $50.45B — the highest in 13 years — strengthening the naira. You collect royalties in USD; at ₦1,380 versus the ₦1,400 budget assumption, every dollar converts to ₦20 less than planned. The drag is modest compared to the price windfall but grows if the naira continues to appreciate.</div>
+        <div class="impact-footer" style="color:var(--orange)">Impact: −₦<span id="ch3-val"></span>T annually (at current production and price)</div>
+      </div>
+
+      <div class="impact-item" style="border-left-color:var(--gold)">
+        <div class="impact-header">
+          <div class="impact-title">4. Crude-Backed Financing Obligations → Revenue Timing Risk</div>
+          <span class="impact-status" style="background:rgba(212,160,23,0.15);color:var(--gold)">CAUTION</span>
+        </div>
+        <div class="impact-body">A portion of Nigeria's crude proceeds are already pre-committed via crude-for-product swap arrangements and NNPC refinery-linked obligations. Higher prices increase the naira value of these pre-committed barrels but may slow the rate at which the full upside flows into federation royalty receipts — creating a timing lag rather than a permanent loss.</div>
+        <div class="impact-footer" style="color:var(--gold)">Impact: Timing and scale risk — may delay full revenue capture into Q3/Q4 2026</div>
+      </div>
+    </div>
+
+    <!-- NET SUMMARY -->
+    <div class="card" style="background:rgba(212,160,23,0.06);border-color:rgba(212,160,23,0.25)">
+      <div class="section-title">Net Assessment</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="font-size:12px;color:var(--muted);line-height:1.8">
+          Despite the naira strengthening and persistent production shortfall, the <strong style="color:var(--green)">Iran war oil price premium is so large (+77.9%)</strong> that your group is on track to materially <strong style="color:var(--green)">EXCEED</strong> the ₦8.47T target at current conditions.<br><br>
+          <div style="margin-top:10px;padding:12px 14px;background:rgba(239,68,68,0.08);border-radius:8px;border:1px solid rgba(239,68,68,0.2)">
+            <span style="color:var(--red);font-weight:700">BIGGEST RISK:</span> A rapid Iran war de-escalation driving prices back to $65–75/bbl, combined with the ongoing production shortfall, could push royalties <strong style="color:var(--red)">BELOW ₦8.47T target</strong>.
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;padding:9px 14px;background:var(--bg2);border-radius:7px;font-size:12px;font-family:'IBM Plex Mono',monospace">
+            <span style="color:var(--muted)">Annual Projection</span>
+            <span style="color:var(--green);font-weight:700" id="net-annual">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:9px 14px;background:var(--bg2);border-radius:7px;font-size:12px;font-family:'IBM Plex Mono',monospace">
+            <span style="color:var(--muted)">vs ₦8.47T Target</span>
+            <span style="color:var(--green);font-weight:700" id="net-vs-target">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:9px 14px;background:var(--bg2);border-radius:7px;font-size:12px;font-family:'IBM Plex Mono',monospace">
+            <span style="color:var(--muted)">Monthly Run-Rate</span>
+            <span style="color:var(--blue);font-weight:700" id="net-monthly">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:9px 14px;background:var(--bg2);border-radius:7px;font-size:12px;font-family:'IBM Plex Mono',monospace">
+            <span style="color:var(--muted)">vs ₦700B/month</span>
+            <span style="color:var(--blue);font-weight:700" id="net-vs-monthly">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SENSITIVITY MATRIX ══ -->
+  <div class="panel" id="panel-matrix">
+    <div class="card">
+      <div class="section-title">Sensitivity Matrix — Annual Royalties (₦T) by Price × Production</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;font-family:'IBM Plex Mono',monospace">
+        Exchange rate locked to slider value. Adjust FX below, or go back to the Simulator tab.
+        &nbsp;⬡ = Budget position &nbsp;|&nbsp; ● = Current position
+      </p>
+
+      <!-- inline FX slider for matrix -->
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;white-space:nowrap">Matrix FX Rate:</span>
+        <input type="range" id="mx-fx" min="1000" max="1800" step="10" value="1380"
+          style="accent-color:var(--gold);flex:1;max-width:300px" oninput="updateMatrix()">
+        <span id="mx-fx-label" style="font-size:14px;font-weight:700;color:var(--gold);font-family:'IBM Plex Mono',monospace;white-space:nowrap">₦1,380</span>
+      </div>
+
+      <div class="matrix-scroll">
+        <table class="matrix-table" id="matrix-tbl"></table>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#7f1d1d"></div>&lt;70% target</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#92400e"></div>70–85%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1c3a4a"></div>85–100%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#14532d"></div>100–120%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#052e16"></div>&gt;120%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Budget ⬡</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Current ●</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BREAK-EVEN ══ -->
+  <div class="panel" id="panel-breakeven">
+    <div class="card">
+      <div class="section-title">Critical Break-Even Analysis</div>
+      <div class="be-grid" id="be-grid"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">De-escalation Risk Chart — Price vs. Royalties</div>
+      <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+    </div>
+    <div class="card" style="background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.2)">
+      <div class="section-title" style="color:var(--red)">⚠ Key Risk: What if the War Ends?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:14px">
+        If a ceasefire is announced and prices normalise back to the pre-war range of $65–75/bbl, your royalties will depend almost entirely on Nigeria's ability to fix its production shortfall. The table below shows the minimum production Nigeria would need at various post-war prices to still hit the ₦8.47T target.
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:12px">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px 10px;background:var(--bg2);color:var(--muted)">Post-War Price</th>
+            <th style="text-align:center;padding:8px 10px;background:var(--bg2);color:var(--muted)">FX ₦1,350</th>
+            <th style="text-align:center;padding:8px 10px;background:var(--bg2);color:var(--muted)">FX ₦1,380</th>
+            <th style="text-align:center;padding:8px 10px;background:var(--bg2);color:var(--muted)">FX ₦1,400</th>
+            <th style="text-align:center;padding:8px 10px;background:var(--bg2);color:var(--muted)">FX ₦1,500</th>
+          </tr>
+        </thead>
+        <tbody id="risk-tbl"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /body -->
+
+<div class="footer">
+  <span>Non-Tax Revenue Group · Resource Royalties Dept · Petroleum Royalties Unit · FIRS</span>
+  <span>Implied Royalty Rate: 13.89% · Model: 30 March 2026</span>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+//  CONSTANTS
+// ════════════════════════════════════════════════════
+const BUDGET_PRICE  = 64.85;
+const BUDGET_PROD   = 1.84;
+const BUDGET_FX     = 1400;
+const TARGET        = 8.47;   // ₦T
+const MONTHLY_TGT   = 0.70;   // ₦T
+const ROYALTY_RATE  = (TARGET * 1e12) / (BUDGET_PROD * 1e6 * 365 * BUDGET_PRICE * BUDGET_FX);
+
+// ════════════════════════════════════════════════════
+//  CORE FORMULA
+// ════════════════════════════════════════════════════
+function calc(prod, price, fx) {
+  return (prod * 1e6 * 365 * price * ROYALTY_RATE * fx) / 1e12;
+}
+function fmtT(v)  { return '₦' + v.toFixed(2) + 'T'; }
+function fmtB(v)  { return '₦' + (v * 1000).toFixed(1) + 'B'; }
+function pct(v, base) { return ((v / base - 1) * 100).toFixed(1); }
+
+// ════════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'matrix')  updateMatrix();
+  if (id === 'overview') buildScChart();
+  if (id === 'impact')  { buildWfChart(); updateImpactTab(); }
+  if (id === 'breakeven') { buildLineChart(); buildBeGrid(); buildRiskTable(); }
+}
+
+// ════════════════════════════════════════════════════
+//  SLIDER LIVE UPDATE
+// ════════════════════════════════════════════════════
+function getVals() {
+  return {
+    price: +document.getElementById('sl-price').value,
+    prod:  +document.getElementById('sl-prod').value,
+    fx:    +document.getElementById('sl-fx').value,
+  };
+}
+
+function tagEl(el, val, ref) {
+  const d = ((val - ref) / ref * 100).toFixed(1);
+  el.textContent = (d >= 0 ? '+' : '') + d + '%';
+  el.className = d >= 0 ? 'tag-pos' : 'tag-neg';
+}
+
+function onSlide() {
+  const { price, prod, fx } = getVals();
+
+  // display slider values
+  document.getElementById('disp-price').textContent = '$' + price.toFixed(2);
+  document.getElementById('disp-prod').textContent  = prod.toFixed(2) + ' mbpd';
+  document.getElementById('disp-fx').textContent    = '₦' + Math.round(fx).toLocaleString();
+
+  tagEl(document.getElementById('tag-price'), price, BUDGET_PRICE);
+  tagEl(document.getElementById('tag-prod'),  prod,  BUDGET_PROD);
+  tagEl(document.getElementById('tag-fx'),    fx,    BUDGET_FX);
+
+  const r = calc(prod, price, fx);
+  const monthly = r / 12;
+  const priceDelta = calc(BUDGET_PROD, price, BUDGET_FX) - TARGET;
+  const prodDelta  = calc(prod, price, BUDGET_FX) - calc(BUDGET_PROD, price, BUDGET_FX);
+  const fxDelta    = calc(prod, price, fx) - calc(prod, price, BUDGET_FX);
+
+  // header
+  document.getElementById('hdr-royalties').textContent = fmtT(r);
+  document.getElementById('hdr-royalties-pct').textContent = (r >= TARGET ? '+' : '') + pct(r, TARGET) + '% vs target';
+  document.getElementById('hdr-monthly').textContent = fmtB(monthly);
+
+  // result cards
+  const rcAnnual = document.getElementById('rc-annual');
+  rcAnnual.style.borderColor = r >= TARGET ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)';
+  rcAnnual.style.background  = r >= TARGET ? 'rgba(34,197,94,0.05)' : 'rgba(239,68,68,0.05)';
+  document.getElementById('rc-annual-val').textContent = fmtT(r);
+  document.getElementById('rc-annual-val').style.color = r >= TARGET ? 'var(--green)' : 'var(--red)';
+
+  const rcATag = document.getElementById('rc-annual-tag');
+  const rPct = pct(r, TARGET);
+  rcATag.textContent = (r >= TARGET ? '+' : '') + rPct + '% vs ₦8.47T target';
+  rcATag.className = r >= TARGET ? 'tag-pos' : 'tag-neg';
+
+  document.getElementById('rc-usd').textContent = '$' + ((prod * 1e6 * 365 * price * ROYALTY_RATE) / 1e9).toFixed(2) + 'B';
+
+  const rcMonthly = document.getElementById('rc-monthly');
+  rcMonthly.style.borderColor = monthly >= MONTHLY_TGT ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)';
+  rcMonthly.style.background  = monthly >= MONTHLY_TGT ? 'rgba(34,197,94,0.05)' : 'rgba(239,68,68,0.05)';
+  document.getElementById('rc-monthly-val').textContent = fmtB(monthly);
+  document.getElementById('rc-monthly-val').style.color = monthly >= MONTHLY_TGT ? 'var(--green)' : 'var(--red)';
+
+  const mTag = document.getElementById('rc-monthly-tag');
+  const mPct = pct(monthly, MONTHLY_TGT);
+  mTag.textContent = (monthly >= MONTHLY_TGT ? '+' : '') + mPct + '% vs ₦700B target';
+  mTag.className = monthly >= MONTHLY_TGT ? 'tag-pos' : 'tag-neg';
+
+  const gapVal = (monthly - MONTHLY_TGT) * 1000;
+  document.getElementById('rc-gap').textContent = (gapVal >= 0 ? '+' : '') + '₦' + Math.abs(gapVal).toFixed(1) + 'B/month';
+  document.getElementById('rc-gap').style.color = gapVal >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // effects
+  const setEffect = (pfx, val, refDesc) => {
+    const arrow = document.getElementById('eff-' + pfx + '-arrow');
+    const valEl = document.getElementById('eff-' + pfx + '-val');
+    const descEl = document.getElementById('eff-' + pfx + '-desc');
+    const positive = val >= 0;
+    arrow.textContent = positive ? '↑' : '↓';
+    arrow.style.color = positive ? 'var(--green)' : 'var(--red)';
+    valEl.textContent = (positive ? '+' : '') + fmtT(val);
+    valEl.style.color = positive ? 'var(--green)' : 'var(--red)';
+    if (descEl && refDesc) descEl.textContent = refDesc;
+  };
+  setEffect('price', priceDelta, `$${BUDGET_PRICE} → $${price.toFixed(2)}/bbl`);
+  setEffect('prod',  prodDelta,  `${BUDGET_PROD} → ${prod.toFixed(2)} mbpd`);
+  setEffect('fx',    fxDelta,    `₦${BUDGET_FX.toLocaleString()} → ₦${Math.round(fx).toLocaleString()}`);
+
+  // scenarios
+  buildScenarioGrid(r);
+
+  // update impact net numbers if visible
+  document.getElementById('net-annual').textContent = fmtT(r);
+  document.getElementById('net-vs-target').textContent = (r >= TARGET ? '+' : '') + pct(r, TARGET) + '% vs target';
+  document.getElementById('net-monthly').textContent = fmtB(monthly);
+  document.getElementById('net-vs-monthly').textContent = (monthly >= MONTHLY_TGT ? '+' : '') + pct(monthly, MONTHLY_TGT) + '% vs ₦700B';
+}
+
+// ════════════════════════════════════════════════════
+//  SCENARIOS
+// ════════════════════════════════════════════════════
+const SCENARIOS = [
+  { name: 'Budget (Base)',       price: 64.85, prod: 1.84, fx: 1400, color: 'var(--gold)' },
+  { name: 'Current (Mar 2026)', price: 115,   prod: 1.50, fx: 1380, color: 'var(--green)' },
+  { name: 'Iran War Peak',      price: 130,   prod: 1.55, fx: 1400, color: 'var(--blue)' },
+  { name: 'De-escalation',      price: 72,    prod: 1.48, fx: 1360, color: 'var(--orange)' },
+  { name: 'Bear Case',          price: 58,    prod: 1.30, fx: 1300, color: 'var(--red)' },
+  { name: 'Bull Case',          price: 140,   prod: 1.70, fx: 1450, color: '#a855f7' },
+];
+
+function buildScenarioGrid(liveVal) {
+  const g = document.getElementById('scenario-grid');
+  if (!g) return;
+  g.innerHTML = '';
+  SCENARIOS.forEach(s => {
+    const v = calc(s.prod, s.price, s.fx);
+    const p = pct(v, TARGET);
+    const positive = v >= TARGET;
+    const fill = Math.min(Math.max(v / (TARGET * 2), 0), 1) * 100;
+    g.innerHTML += `
+      <div class="scenario-card">
+        <div class="scenario-name">${s.name}</div>
+        <div class="scenario-val" style="color:${s.color}">${fmtT(v)}</div>
+        <div class="scenario-pct" style="color:${positive ? 'var(--green)' : 'var(--red)'}">${(p >= 0 ? '+' : '')}${p}% vs target</div>
+        <div class="scenario-bar"><div class="scenario-bar-fill" style="width:${fill}%;background:${s.color}"></div></div>
+        <div style="font-size:10px;color:var(--dim);margin-top:6px;font-family:'IBM Plex Mono',monospace">
+          $${s.price} · ${s.prod}M bpd · ₦${s.fx.toLocaleString()}
+        </div>
+      </div>`;
+  });
+}
+
+// ════════════════════════════════════════════════════
+//  CHART: SCENARIO BAR
+// ════════════════════════════════════════════════════
+let scChartInst = null;
+function buildScChart() {
+  const ctx = document.getElementById('scChart');
+  if (!ctx) return;
+  if (scChartInst) { scChartInst.destroy(); scChartInst = null; }
+  const labels = SCENARIOS.map(s => s.name);
+  const data   = SCENARIOS.map(s => +calc(s.prod, s.price, s.fx).toFixed(3));
+  const colors = SCENARIOS.map(s => s.color);
+  scChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data, backgroundColor: colors.map(c => c + 'cc'),
+        borderColor: colors, borderWidth: 1.5, borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => fmtT(ctx.parsed.y) + '  (' + (ctx.parsed.y >= TARGET ? '+' : '') + pct(ctx.parsed.y, TARGET) + '% vs target)',
+          }
+        },
+        annotation: {}
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: {
+          ticks: { color: '#94a3b8', callback: v => '₦' + v + 'T' },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          min: 0, max: 18,
+        }
+      }
+    }
+  });
+  // draw target line manually via plugin
+  scChartInst.options.plugins.customAnnotation = true;
+  const targetPlugin = {
+    id: 'targetLine',
+    afterDraw(chart) {
+      const { ctx: c, scales: { y }, chartArea: { left, right } } = chart;
+      const yPx = y.getPixelForValue(TARGET);
+      c.save();
+      c.setLineDash([5, 3]);
+      c.strokeStyle = '#d4a017';
+      c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(left, yPx); c.lineTo(right, yPx); c.stroke();
+      c.fillStyle = '#d4a017';
+      c.font = '10px IBM Plex Mono';
+      c.fillText('₦8.47T Target', right - 90, yPx - 5);
+      c.restore();
+    }
+  };
+  Chart.register(targetPlugin);
+  scChartInst.update();
+}
+
+// ════════════════════════════════════════════════════
+//  CHART: WATERFALL
+// ════════════════════════════════════════════════════
+let wfChartInst = null;
+function buildWfChart() {
+  const ctx = document.getElementById('wfChart');
+  if (!ctx) return;
+  if (wfChartInst) { wfChartInst.destroy(); wfChartInst = null; }
+  const base   = TARGET;
+  const priceD = calc(BUDGET_PROD, 115, BUDGET_FX) - base;
+  const prodD  = calc(1.50, 115, BUDGET_FX) - calc(BUDGET_PROD, 115, BUDGET_FX);
+  const fxD    = calc(1.50, 115, 1380) - calc(1.50, 115, BUDGET_FX);
+  const final  = base + priceD + prodD + fxD;
+
+  // update impact cards
+  document.getElementById('wf-price').textContent = '+' + fmtT(priceD);
+  document.getElementById('wf-prod').textContent  = fmtT(prodD);
+  document.getElementById('wf-fx').textContent    = fmtT(fxD);
+
+  const floats = [0, base, base + priceD, base + priceD + prodD, 0];
+  const bars   = [base, priceD, Math.abs(prodD), Math.abs(fxD), final];
+  const colors = ['#d4a017cc','#22c55ecc','#ef4444cc','#f97316cc','#3b82f6cc'];
+  const labels = ['Budget\nBaseline','Price\nEffect (+)','Production\nShortfall (−)','FX Rate\nEffect (−)','Projected\nRoyalties'];
+
+  wfChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'float', data: floats, backgroundColor: 'transparent', stack: 'a' },
+        { label: 'bar',   data: bars,  backgroundColor: colors, borderRadius: 3, stack: 'a' },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: c => {
+              if (c.datasetIndex === 0) return null;
+              return ['Budget Baseline','Projected Royalties'].includes(c.label)
+                ? fmtT(c.parsed.y)
+                : (c.dataIndex === 1 ? '+' : '−') + fmtT(c.parsed.y);
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+        y: {
+          ticks: { color: '#94a3b8', callback: v => '₦' + v + 'T' },
+          grid: { color: 'rgba(255,255,255,0.06)' }, min: 0, max: 18,
+        }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════════════════
+//  CHART: LINE (de-escalation risk)
+// ════════════════════════════════════════════════════
+let lineChartInst = null;
+function buildLineChart() {
+  const ctx = document.getElementById('lineChart');
+  if (!ctx) return;
+  if (lineChartInst) { lineChartInst.destroy(); lineChartInst = null; }
+  const prices = [];
+  for (let p = 50; p <= 140; p += 5) prices.push(p);
+  const make = (prod, fx) => prices.map(p => +calc(prod, p, fx).toFixed(3));
+
+  lineChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: prices.map(p => '$' + p),
+      datasets: [
+        { label: '1.84 mbpd (Budget)',  data: make(1.84, 1400), borderColor: '#d4a017', backgroundColor: 'rgba(212,160,23,0.1)', tension: 0.3, pointRadius: 3 },
+        { label: '1.50 mbpd (Current)', data: make(1.50, 1380), borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)',  tension: 0.3, pointRadius: 3 },
+        { label: '1.30 mbpd (Bear)',    data: make(1.30, 1350), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)',  tension: 0.3, pointRadius: 3, borderDash: [4,3] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        y: { ticks: { color: '#94a3b8', callback: v => '₦' + v + 'T' }, grid: { color: 'rgba(255,255,255,0.06)' }, min: 0, max: 18 }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════════════════
+//  BREAK-EVEN GRID
+// ════════════════════════════════════════════════════
+function buildBeGrid() {
+  const { fx } = getVals();
+  const items = [
+    {
+      label: 'Min. Price to Hit Target (Current Prod.)',
+      desc: `At ${1.50} mbpd & ₦${Math.round(fx).toLocaleString()}`,
+      val: '$' + ((TARGET * 1e12) / (1.50e6 * 365 * ROYALTY_RATE * fx)).toFixed(2) + '/bbl',
+      color: 'var(--blue)',
+    },
+    {
+      label: 'Min. Price at Budget Production',
+      desc: `At 1.84 mbpd & ₦${Math.round(fx).toLocaleString()}`,
+      val: '$' + ((TARGET * 1e12) / (1.84e6 * 365 * ROYALTY_RATE * fx)).toFixed(2) + '/bbl',
+      color: 'var(--green)',
+    },
+    {
+      label: 'Min. Production to Hit Target (Current Price)',
+      desc: `At $115 & ₦${Math.round(fx).toLocaleString()}`,
+      val: ((TARGET * 1e12) / (365 * 115 * ROYALTY_RATE * fx * 1e6)).toFixed(3) + ' mbpd',
+      color: 'var(--gold)',
+    },
+    {
+      label: 'Min. Production at Post-War Price ($72)',
+      desc: `At $72 & ₦${Math.round(fx).toLocaleString()}`,
+      val: ((TARGET * 1e12) / (365 * 72 * ROYALTY_RATE * fx * 1e6)).toFixed(3) + ' mbpd',
+      color: 'var(--red)',
+    },
+  ];
+  const g = document.getElementById('be-grid');
+  g.innerHTML = items.map(i => `
+    <div class="be-card">
+      <div class="be-label">${i.label}</div>
+      <div class="be-val" style="color:${i.color}">${i.val}</div>
+      <div class="be-desc">${i.desc}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════
+//  RISK TABLE
+// ════════════════════════════════════════════════════
+function buildRiskTable() {
+  const prices = [60, 65, 70, 75, 80];
+  const fxs    = [1350, 1380, 1400, 1500];
+  const tb = document.getElementById('risk-tbl');
+  tb.innerHTML = prices.map(p => {
+    const cells = fxs.map(fx => {
+      const minProd = (TARGET * 1e12) / (365 * p * ROYALTY_RATE * fx * 1e6);
+      const feasible = minProd <= 1.84;
+      const color = minProd <= 1.50 ? 'var(--green)' : minProd <= 1.84 ? 'var(--orange)' : 'var(--red)';
+      return `<td style="text-align:center;padding:8px 10px;border:1px solid rgba(255,255,255,0.05);color:${color};font-family:'IBM Plex Mono',monospace;font-size:12px">
+        ${minProd.toFixed(3)} mbpd ${feasible ? '✓' : '✗'}
+      </td>`;
+    }).join('');
+    return `<tr>
+      <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.05);font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)">$${p}/bbl</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════
+//  SENSITIVITY MATRIX
+// ════════════════════════════════════════════════════
+const MATRIX_PRICES = [50, 60, 65, 70, 75, 80, 85, 90, 100, 110, 115, 120, 130];
+const MATRIX_PRODS  = [1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.84, 1.90, 2.00];
+
+function getCellStyle(val) {
+  const r = val / TARGET;
+  if (r < 0.70) return 'background:#7f1d1d;color:#fca5a5';
+  if (r < 0.85) return 'background:#92400e;color:#fcd34d';
+  if (r < 1.00) return 'background:#1c3a4a;color:#93c5fd';
+  if (r < 1.20) return 'background:#14532d;color:#86efac';
+  return 'background:#052e16;color:#22c55e';
+}
+
+function updateMatrix() {
+  const fx = +document.getElementById('mx-fx').value;
+  document.getElementById('mx-fx-label').textContent = '₦' + Math.round(fx).toLocaleString();
+
+  const tbl = document.getElementById('matrix-tbl');
+  let html = '<thead><tr><th class="row-header">Prod ↓ / Price →</th>';
+  MATRIX_PRICES.forEach(p => {
+    const highlight = p === 115;
+    html += `<th style="${highlight ? 'color:var(--gold);background:#0f2040;border-bottom:2px solid var(--gold)' : ''}">$${p}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  MATRIX_PRODS.forEach(prod => {
+    const isBudgetProd = Math.abs(prod - BUDGET_PROD) < 0.005;
+    const isCurrentProd = Math.abs(prod - 1.50) < 0.005;
+    const rowStyle = (isBudgetProd || isCurrentProd) ? 'background:#0f2040' : '';
+    html += `<tr>
+      <td class="row-header" style="${rowStyle};color:${isBudgetProd ? 'var(--gold)' : isCurrentProd ? 'var(--green)' : 'var(--muted)'}">
+        ${prod.toFixed(2)} ${isBudgetProd ? '⬡' : isCurrentProd ? '●' : ''}
+      </td>`;
+    MATRIX_PRICES.forEach(price => {
+      const val = calc(prod, price, fx);
+      const isBudget  = Math.abs(prod - BUDGET_PROD) < 0.005 && Math.abs(price - BUDGET_PRICE) < 0.1;
+      const isCurrent = Math.abs(prod - 1.50) < 0.005 && price === 115;
+      let style = getCellStyle(val);
+      if (isCurrent) style = 'background:#1e4d2b;color:#4ade80;border:1.5px solid #22c55e;font-weight:800';
+      if (isBudget)  style = 'background:#3d2e00;color:#fbbf24;border:1.5px solid var(--gold);font-weight:800';
+      html += `<td style="${style}">${fmtT(val)}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════
+//  IMPACT TAB STATIC UPDATE
+// ════════════════════════════════════════════════════
+function updateImpactTab() {
+  const { price, prod, fx } = getVals();
+  const r = calc(prod, price, fx);
+  const ch1 = calc(BUDGET_PROD, 115, BUDGET_FX) - TARGET;
+  const ch2 = calc(BUDGET_PROD, 115, BUDGET_FX) - calc(1.50, 115, BUDGET_FX);
+  const ch3 = Math.abs(calc(1.50, 115, BUDGET_FX) - calc(1.50, 115, 1380));
+  document.getElementById('ch1-val').textContent = ch1.toFixed(2);
+  document.getElementById('ch2-val').textContent = ch2.toFixed(2);
+  document.getElementById('ch3-val').textContent = ch3.toFixed(2);
+}
+
+// ════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════
+onSlide();
+buildScenarioGrid();
+updateImpactTab();
+</script>
+</body>
+</html>
